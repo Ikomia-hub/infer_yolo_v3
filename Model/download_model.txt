@@ -1,0 +1,4 @@
+https://pjreddie.com/media/files/yolov3.weights
+https://pjreddie.com/media/files/yolov3-tiny.weights
+https://pjreddie.com/media/files/yolov3-spp.weights
+https://drive.google.com/open?id=1_NnfVgj0EDtb_WLNoXV8Mo7WKgwdYZCc

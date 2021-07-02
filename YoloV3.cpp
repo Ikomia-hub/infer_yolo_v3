@@ -34,15 +34,15 @@ UMapString CYoloV3Param::getParamMap() const
 CYoloV3::CYoloV3() : COcvDnnProcess()
 {
     m_pParam = std::make_shared<CYoloV3Param>();
-    addOutput(std::make_shared<CGraphicsProcessOutput>());
-    addOutput(std::make_shared<CMeasureProcessIO>());
+    addOutput(std::make_shared<CGraphicsOutput>());
+    addOutput(std::make_shared<CMeasureIO>());
 }
 
 CYoloV3::CYoloV3(const std::string &name, const std::shared_ptr<CYoloV3Param> &pParam): COcvDnnProcess(name)
 {
     m_pParam = std::make_shared<CYoloV3Param>(*pParam);
-    addOutput(std::make_shared<CGraphicsProcessOutput>());
-    addOutput(std::make_shared<CMeasureProcessIO>());
+    addOutput(std::make_shared<CGraphicsOutput>());
+    addOutput(std::make_shared<CMeasureIO>());
 }
 
 size_t CYoloV3::getProgressSteps()
@@ -69,7 +69,7 @@ cv::Scalar CYoloV3::getNetworkInputMean() const
 void CYoloV3::run()
 {
     beginTaskRun();
-    auto pInput = std::dynamic_pointer_cast<CImageProcessIO>(getInput(0));
+    auto pInput = std::dynamic_pointer_cast<CImageIO>(getInput(0));
     auto pParam = std::dynamic_pointer_cast<CYoloV3Param>(m_pParam);
 
     if(pInput == nullptr || pParam == nullptr)
@@ -130,7 +130,7 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
     forwardInputImage();
 
     auto pParam = std::dynamic_pointer_cast<CYoloV3Param>(m_pParam);
-    auto pInput = std::dynamic_pointer_cast<CImageProcessIO>(getInput(0));
+    auto pInput = std::dynamic_pointer_cast<CImageIO>(getInput(0));
     CMat imgSrc = pInput->getImage();
 
     const size_t nbClasses = m_classNames.size();
@@ -142,12 +142,12 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
     indices.resize(nbClasses);
 
     //Graphics output
-    auto pGraphicsOutput = std::dynamic_pointer_cast<CGraphicsProcessOutput>(getOutput(1));
+    auto pGraphicsOutput = std::dynamic_pointer_cast<CGraphicsOutput>(getOutput(1));
     pGraphicsOutput->setNewLayer(getName());
     pGraphicsOutput->setImageIndex(0);
 
     //Measures output
-    auto pMeasureOutput = std::dynamic_pointer_cast<CMeasureProcessIO>(getOutput(2));
+    auto pMeasureOutput = std::dynamic_pointer_cast<CMeasureIO>(getOutput(2));
     pMeasureOutput->clearData();
 
     const int probabilityIndex = 5;
@@ -211,7 +211,7 @@ CYoloV3Widget::CYoloV3Widget(QWidget *parent): COcvWidgetDnnCore(parent)
     init();
 }
 
-CYoloV3Widget::CYoloV3Widget(ProtocolTaskParamPtr pParam, QWidget *parent): COcvWidgetDnnCore(pParam, parent)
+CYoloV3Widget::CYoloV3Widget(WorkflowTaskParamPtr pParam, QWidget *parent): COcvWidgetDnnCore(pParam, parent)
 {
     m_pParam = std::dynamic_pointer_cast<CYoloV3Param>(pParam);
     init();

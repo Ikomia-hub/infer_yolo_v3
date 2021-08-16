@@ -283,52 +283,53 @@ void CYoloV3Widget::init()
         assert(pParam);
         pParam->m_nmsThreshold = val;
     });
-    connect(m_pApplyBtn, &QPushButton::clicked, [&]
+}
+
+void CYoloV3Widget::onApply()
+{
+    auto pParam = std::dynamic_pointer_cast<CYoloV3Param>(m_pParam);
+    assert(pParam);
+    pParam->m_inputSize = m_pSpinInputSize->value();
+
+    if(pParam->m_datasetName == "COCO")
     {
-        auto pParam = std::dynamic_pointer_cast<CYoloV3Param>(m_pParam);
-        assert(pParam);
-        pParam->m_inputSize = m_pSpinInputSize->value();
+        pParam->m_labelsFile = pParam->m_modelFolder + "coco_names.txt";
+        m_pBrowseLabels->setPath(QString::fromStdString(pParam->m_labelsFile));
 
-        if(pParam->m_datasetName == "COCO")
+        if(pParam->m_modelName == "YOLOv3")
         {
-            pParam->m_labelsFile = pParam->m_modelFolder + "coco_names.txt";
-            m_pBrowseLabels->setPath(QString::fromStdString(pParam->m_labelsFile));
-
-            if(pParam->m_modelName == "YOLOv3")
-            {
-                pParam->m_structureFile = pParam->m_modelFolder + "yolov3.cfg";
-                pParam->m_modelFile = pParam->m_modelFolder + "yolov3.weights";
-                m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
-                m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
-            }
-            else if(pParam->m_modelName == "Tiny YOLOv3")
-            {
-                pParam->m_structureFile = pParam->m_modelFolder + "yolov3-tiny.cfg";
-                pParam->m_modelFile = pParam->m_modelFolder + "yolov3-tiny.weights";
-                m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
-                m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
-            }
-            else if(pParam->m_modelName == "YOLOv3-spp")
-            {
-                pParam->m_structureFile = pParam->m_modelFolder + "yolov3-spp.cfg";
-                pParam->m_modelFile = pParam->m_modelFolder + "yolov3-spp.weights";
-                m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
-                m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
-            }
-            else if(pParam->m_modelName == "CSResNeXt50-panet-spp-optimal")
-            {
-                pParam->m_structureFile = pParam->m_modelFolder + "csresnext50-panet-spp-original-optimal.cfg";
-                pParam->m_modelFile = pParam->m_modelFolder + "csresnext50-panet-spp-original-optimal_final.weights";
-                m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
-                m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
-            }
+            pParam->m_structureFile = pParam->m_modelFolder + "yolov3.cfg";
+            pParam->m_modelFile = pParam->m_modelFolder + "yolov3.weights";
+            m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
+            m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
         }
-        else
+        else if(pParam->m_modelName == "Tiny YOLOv3")
         {
-            pParam->m_structureFile = m_pBrowseConfig->getPath().toStdString();
-            pParam->m_modelFile = m_pBrowseWeights->getPath().toStdString();
-            pParam->m_labelsFile = m_pBrowseLabels->getPath().toStdString();
+            pParam->m_structureFile = pParam->m_modelFolder + "yolov3-tiny.cfg";
+            pParam->m_modelFile = pParam->m_modelFolder + "yolov3-tiny.weights";
+            m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
+            m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
         }
-        emit doApplyProcess(m_pParam);
-    });
+        else if(pParam->m_modelName == "YOLOv3-spp")
+        {
+            pParam->m_structureFile = pParam->m_modelFolder + "yolov3-spp.cfg";
+            pParam->m_modelFile = pParam->m_modelFolder + "yolov3-spp.weights";
+            m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
+            m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
+        }
+        else if(pParam->m_modelName == "CSResNeXt50-panet-spp-optimal")
+        {
+            pParam->m_structureFile = pParam->m_modelFolder + "csresnext50-panet-spp-original-optimal.cfg";
+            pParam->m_modelFile = pParam->m_modelFolder + "csresnext50-panet-spp-original-optimal_final.weights";
+            m_pBrowseConfig->setPath(QString::fromStdString(pParam->m_structureFile));
+            m_pBrowseWeights->setPath(QString::fromStdString(pParam->m_modelFile));
+        }
+    }
+    else
+    {
+        pParam->m_structureFile = m_pBrowseConfig->getPath().toStdString();
+        pParam->m_modelFile = m_pBrowseWeights->getPath().toStdString();
+        pParam->m_labelsFile = m_pBrowseLabels->getPath().toStdString();
+    }
+    emit doApplyProcess(m_pParam);
 }

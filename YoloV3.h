@@ -101,9 +101,11 @@ class YOLOV3SHARED_EXPORT CYoloV3Widget: public COcvWidgetDnnCore
         CYoloV3Widget(QWidget *parent = Q_NULLPTR);
         CYoloV3Widget(WorkflowTaskParamPtr pParam, QWidget *parent = Q_NULLPTR);
 
+        void onApply() override;
+
     private:
 
-        void init() override;
+        void init();
 
     private:
 

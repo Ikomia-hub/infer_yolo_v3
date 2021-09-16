@@ -185,9 +185,11 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
         for(size_t j=0; j<indices[i].size(); ++j)
         {
             //Create rectangle graphics of bbox
+            CGraphicsRectProperty prop;
+            prop.m_category = m_classNames[i];
             const int index = indices[i][j];
             cv::Rect2d box = boxes[i][index];
-            auto graphicsObj = pGraphicsOutput->addRectangle(box.x, box.y, box.width, box.height);
+            auto graphicsObj = pGraphicsOutput->addRectangle(box.x, box.y, box.width, box.height, prop);
 
             //Retrieve class label
             float confidence = scores[i][index];

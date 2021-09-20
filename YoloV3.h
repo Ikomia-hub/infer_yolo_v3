@@ -57,7 +57,7 @@ class YOLOV3SHARED_EXPORT CYoloV3Factory : public CTaskFactory
 
         CYoloV3Factory()
         {
-            m_info.m_name = QObject::tr("YoloV3").toStdString();
+            m_info.m_name = "infer_yolo_v3";
             m_info.m_shortDescription = QObject::tr("Object detection using YOLO V3 neural network").toStdString();
             m_info.m_description = QObject::tr("We present some updates to YOLO! We made a bunch of little design changes to make it better. "
                                                "We also trained this new network that's pretty swell. It's a little bigger than last time but more accurate. "
@@ -126,7 +126,7 @@ class YOLOV3SHARED_EXPORT CYoloV3WidgetFactory : public CWidgetFactory
 
         CYoloV3WidgetFactory()
         {
-            m_name = QObject::tr("YoloV3").toStdString();
+            m_name = "infer_yolo_v3";
         }
 
         virtual WorkflowTaskWidgetPtr   create(WorkflowTaskParamPtr pParam)

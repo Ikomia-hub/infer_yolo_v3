@@ -10,7 +10,7 @@ CYoloV3Param::CYoloV3Param() : COcvDnnProcessParam()
     m_inputSize = 416;
     m_modelName = "YOLOv3";
     m_datasetName = "COCO";
-    m_modelFolder = Utils::Plugin::getCppPath() + "/YoloV3/Model/";
+    m_modelFolder = Utils::Plugin::getCppPath() + "/infer_yolo_v3/Model/";
 }
 
 void CYoloV3Param::setParamMap(const UMapString &paramMap)

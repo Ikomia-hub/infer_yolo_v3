@@ -53,7 +53,14 @@ size_t CYoloV3::getProgressSteps()
 int CYoloV3::getNetworkInputSize() const
 {
     auto pParam = std::dynamic_pointer_cast<CYoloV3Param>(m_pParam);
-    return pParam->m_inputSize;
+    int size = pParam->m_inputSize;
+
+    // Trick to overcome OpenCV issue around CUDA context and multithreading
+    // https://github.com/opencv/opencv/issues/20566
+    if(pParam->m_backend == cv::dnn::DNN_BACKEND_CUDA && m_bNewInput)
+        size = size + (m_sign * 32);
+
+    return size;
 }
 
 double CYoloV3::getNetworkInputScaleFactor() const
@@ -123,6 +130,14 @@ void CYoloV3::run()
     emit m_signalHandler->doProgress();
     manageOutput(netOutputs);
     emit m_signalHandler->doProgress();
+
+    // Trick to overcome OpenCV issue around CUDA context and multithreading
+    // https://github.com/opencv/opencv/issues/20566
+    if(pParam->m_backend == cv::dnn::DNN_BACKEND_CUDA && m_bNewInput)
+    {
+        m_sign *= -1;
+        m_bNewInput = false;
+    }
 }
 
 void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)

@@ -46,6 +46,11 @@ class YOLOV3SHARED_EXPORT CYoloV3: public COcvDnnProcess
     private:
 
         void        manageOutput(const std::vector<cv::Mat> &dnnOutputs);
+        void        generateColors();
+
+    private:
+
+        std::vector<CColor> m_colors;
 };
 
 //--------------------------//
@@ -65,7 +70,7 @@ class YOLOV3SHARED_EXPORT CYoloV3Factory : public CTaskFactory
                                                "When we look at the old .5 IOU mAP detection metric YOLOv3 is quite good. It achieves 57.9 mAP@50 in 51 ms on a Titan X, "
                                                "compared to 57.5 mAP@50 in 198 ms by RetinaNet, similar performance but 3.8x faster.").toStdString();
             m_info.m_path = QObject::tr("Plugins/C++/Object/Detection").toStdString();
-            m_info.m_version = "1.1.0";
+            m_info.m_version = "1.2.0";
             m_info.m_iconPath = "Icon/icon.png";
             m_info.m_authors = "Joseph Redmon, Ali Farhadi";
             m_info.m_article = "YOLOv3: An Incremental Improvement";

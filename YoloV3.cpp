@@ -105,6 +105,10 @@ void CYoloV3::run()
             if(m_net.empty())
                 throw CException(CoreExCode::INVALID_PARAMETER, "Failed to load network", __func__, __FILE__, __LINE__);
 
+            if(m_classNames.empty())
+                readClassNames();
+
+            generateColors();
             pParam->m_bUpdate = false;
         }
 
@@ -123,9 +127,6 @@ void CYoloV3::run()
     }
 
     endTaskRun();
-
-    if(m_classNames.empty())
-        readClassNames();
 
     emit m_signalHandler->doProgress();
     manageOutput(netOutputs);
@@ -199,17 +200,22 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
     {
         for(size_t j=0; j<indices[i].size(); ++j)
         {
-            //Create rectangle graphics of bbox
-            CGraphicsRectProperty prop;
-            prop.m_category = m_classNames[i];
             const int index = indices[i][j];
             cv::Rect2d box = boxes[i][index];
-            auto graphicsObj = pGraphicsOutput->addRectangle(box.x, box.y, box.width, box.height, prop);
 
             //Retrieve class label
             float confidence = scores[i][index];
             std::string label = m_classNames[i] + " : " + std::to_string(confidence);
-            pGraphicsOutput->addText(label, box.x + 5, box.y + 5);
+            CGraphicsTextProperty textProperty;
+            textProperty.m_color = m_colors[i];
+            textProperty.m_fontSize = 8;
+            pGraphicsOutput->addText(label, box.x + 5, box.y + 5, textProperty);
+
+            //Create rectangle graphics of bbox
+            CGraphicsRectProperty rectProp;
+            rectProp.m_category = m_classNames[i];
+            rectProp.m_penColor = m_colors[i];
+            auto graphicsObj = pGraphicsOutput->addRectangle(box.x, box.y, box.width, box.height, rectProp);
 
             //Store values to be shown in results table
             std::vector<CObjectMeasure> results;
@@ -217,6 +223,18 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
             results.emplace_back(CObjectMeasure(CMeasure::Id::BBOX, {box.x, box.y, box.width, box.height}, graphicsObj->getId(), m_classNames[i]));
             pMeasureOutput->addObjectMeasures(results);
         }
+    }
+}
+
+void CYoloV3::generateColors()
+{
+    //Random colors
+    for(size_t i=0; i<m_classNames.size(); ++i)
+    {
+        m_colors.push_back({ (uchar)((double)std::rand() / (double)RAND_MAX * 255.0),
+                             (uchar)((double)std::rand() / (double)RAND_MAX * 255.0),
+                             (uchar)((double)std::rand() / (double)RAND_MAX * 255.0),
+                           });
     }
 }
 

@@ -1,5 +1,5 @@
 #include "YoloV3.h"
-#include "Graphics/CGraphicsLayer.h"
+#include "IO/CObjectDetectionIO.h"
 
 //------------------------//
 //----- CYoloV3Param -----//
@@ -34,15 +34,13 @@ UMapString CYoloV3Param::getParamMap() const
 CYoloV3::CYoloV3() : COcvDnnProcess()
 {
     m_pParam = std::make_shared<CYoloV3Param>();
-    addOutput(std::make_shared<CGraphicsOutput>());
-    addOutput(std::make_shared<CBlobMeasureIO>());
+    addOutput(std::make_shared<CObjectDetectionIO>());
 }
 
 CYoloV3::CYoloV3(const std::string &name, const std::shared_ptr<CYoloV3Param> &pParam): COcvDnnProcess(name)
 {
     m_pParam = std::make_shared<CYoloV3Param>(*pParam);
-    addOutput(std::make_shared<CGraphicsOutput>());
-    addOutput(std::make_shared<CBlobMeasureIO>());
+    addOutput(std::make_shared<CObjectDetectionIO>());
 }
 
 size_t CYoloV3::getProgressSteps()
@@ -111,15 +109,7 @@ void CYoloV3::run()
             generateColors();
             pParam->m_bUpdate = false;
         }
-
-        int size = getNetworkInputSize();
-        double scaleFactor = getNetworkInputScaleFactor();
-        cv::Scalar mean = getNetworkInputMean();
-        auto inputBlob = cv::dnn::blobFromImage(imgSrc, scaleFactor, cv::Size(size,size), mean, false, false);
-        m_net.setInput(inputBlob);
-
-        auto netOutNames = getOutputsNames();
-        m_net.forward(netOutputs, netOutNames);
+        forward(imgSrc, netOutputs);
     }
     catch(cv::Exception& e)
     {
@@ -127,18 +117,9 @@ void CYoloV3::run()
     }
 
     endTaskRun();
-
     emit m_signalHandler->doProgress();
     manageOutput(netOutputs);
     emit m_signalHandler->doProgress();
-
-    // Trick to overcome OpenCV issue around CUDA context and multithreading
-    // https://github.com/opencv/opencv/issues/20566
-    if(pParam->m_backend == cv::dnn::DNN_BACKEND_CUDA && m_bNewInput)
-    {
-        m_sign *= -1;
-        m_bNewInput = false;
-    }
 }
 
 void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
@@ -157,16 +138,10 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
     scores.resize(nbClasses);
     indices.resize(nbClasses);
 
-    //Graphics output
-    auto pGraphicsOutput = std::dynamic_pointer_cast<CGraphicsOutput>(getOutput(1));
-    pGraphicsOutput->setNewLayer(getName());
-    pGraphicsOutput->setImageIndex(0);
-
-    //Measures output
-    auto pMeasureOutput = std::dynamic_pointer_cast<CBlobMeasureIO>(getOutput(2));
-    pMeasureOutput->clearData();
-
+    auto objDetectIOPtr = std::dynamic_pointer_cast<CObjectDetectionIO>(getOutput(1));
+    objDetectIOPtr->init(getName(), 0);
     const int probabilityIndex = 5;
+
     for(auto&& output : dnnOutputs)
     {
         const auto nbBoxes = output.rows;
@@ -202,26 +177,8 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
         {
             const int index = indices[i][j];
             cv::Rect2d box = boxes[i][index];
-
-            //Retrieve class label
             float confidence = scores[i][index];
-            std::string label = m_classNames[i] + " : " + std::to_string(confidence);
-            CGraphicsTextProperty textProperty;
-            textProperty.m_color = m_colors[i];
-            textProperty.m_fontSize = 8;
-            pGraphicsOutput->addText(label, box.x + 5, box.y + 5, textProperty);
-
-            //Create rectangle graphics of bbox
-            CGraphicsRectProperty rectProp;
-            rectProp.m_category = m_classNames[i];
-            rectProp.m_penColor = m_colors[i];
-            auto graphicsObj = pGraphicsOutput->addRectangle(box.x, box.y, box.width, box.height, rectProp);
-
-            //Store values to be shown in results table
-            std::vector<CObjectMeasure> results;
-            results.emplace_back(CObjectMeasure(CMeasure(CMeasure::CUSTOM, QObject::tr("Confidence").toStdString()), confidence, graphicsObj->getId(), m_classNames[i]));
-            results.emplace_back(CObjectMeasure(CMeasure::Id::BBOX, {box.x, box.y, box.width, box.height}, graphicsObj->getId(), m_classNames[i]));
-            pMeasureOutput->addObjectMeasures(results);
+            objDetectIOPtr->addObject(m_classNames[i], confidence, box.x, box.y, box.width, box.height, m_colors[i]);
         }
     }
 }

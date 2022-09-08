@@ -178,7 +178,7 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
             const int index = indices[i][j];
             cv::Rect2d box = boxes[i][index];
             float confidence = scores[i][index];
-            objDetectIOPtr->addObject(i, m_classNames[i], confidence, box.x, box.y, box.width, box.height, m_colors[i]);
+            objDetectIOPtr->addObject(index, m_classNames[i], confidence, box.x, box.y, box.width, box.height, m_colors[i]);
         }
     }
 }

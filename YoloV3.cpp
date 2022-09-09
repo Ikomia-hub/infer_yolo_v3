@@ -171,6 +171,7 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
     for(size_t i=0; i<nbClasses; ++i)
         cv::dnn::NMSBoxes(boxes[i], scores[i], pParam->m_confidence, pParam->m_nmsThreshold, indices[i]);
 
+    int id = 0;
     for(size_t i=0; i<nbClasses; ++i)
     {
         for(size_t j=0; j<indices[i].size(); ++j)
@@ -178,7 +179,7 @@ void CYoloV3::manageOutput(const std::vector<cv::Mat> &dnnOutputs)
             const int index = indices[i][j];
             cv::Rect2d box = boxes[i][index];
             float confidence = scores[i][index];
-            objDetectIOPtr->addObject(index, m_classNames[i], confidence, box.x, box.y, box.width, box.height, m_colors[i]);
+            objDetectIOPtr->addObject(id++, m_classNames[i], confidence, box.x, box.y, box.width, box.height, m_colors[i]);
         }
     }
 }

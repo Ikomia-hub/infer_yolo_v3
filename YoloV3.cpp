@@ -83,6 +83,14 @@ void CYoloV3::run()
     if(pInput->isDataAvailable() == false)
         throw CException(CoreExCode::INVALID_PARAMETER, "Empty image", __func__, __FILE__, __LINE__);
 
+    if (!Utils::File::isFileExist(pParam->m_modelFile))
+    {
+        std::cout << "Downloading model..." << std::endl;
+        auto modelName = Utils::File::getFileName(pParam->m_modelFile);
+        std::string downloadUrl = Utils::Plugin::getModelHubUrl() + "/" + m_name + "/" + modelName;
+        download(downloadUrl, pParam->m_modelFile);
+    }
+
     CMat imgSrc;
     CMat imgOrigin = pInput->getImage();
     std::vector<cv::Mat> netOutputs;

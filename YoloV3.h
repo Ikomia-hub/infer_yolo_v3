@@ -3,9 +3,9 @@
 
 #include "YoloV3Global.h"
 #include "Process/OpenCV/dnn/COcvDnnProcess.h"
-#include "Core/CObjectDetectionTask.h"
+#include "Task/CObjectDetectionTask.h"
 #include "Widget/OpenCV/dnn/COcvWidgetDnnCore.h"
-#include "CPluginProcessInterface.hpp"
+#include "Core/CPluginProcessInterface.hpp"
 
 //------------------------//
 //----- CYoloV3Param -----//

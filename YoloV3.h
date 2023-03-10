@@ -3,8 +3,9 @@
 
 #include "YoloV3Global.h"
 #include "Process/OpenCV/dnn/COcvDnnProcess.h"
+#include "Task/CObjectDetectionTask.h"
 #include "Widget/OpenCV/dnn/COcvWidgetDnnCore.h"
-#include "CPluginProcessInterface.hpp"
+#include "Core/CPluginProcessInterface.hpp"
 
 //------------------------//
 //----- CYoloV3Param -----//
@@ -29,7 +30,7 @@ class YOLOV3SHARED_EXPORT CYoloV3Param: public COcvDnnProcessParam
 //-------------------//
 //----- CYoloV3 -----//
 //-------------------//
-class YOLOV3SHARED_EXPORT CYoloV3: public COcvDnnProcess
+class YOLOV3SHARED_EXPORT CYoloV3: public COcvDnnProcess, public CObjectDetectionTask
 {
     public:
 
@@ -46,11 +47,6 @@ class YOLOV3SHARED_EXPORT CYoloV3: public COcvDnnProcess
     private:
 
         void        manageOutput(const std::vector<cv::Mat> &dnnOutputs);
-        void        generateColors();
-
-    private:
-
-        std::vector<CColor> m_colors;
 };
 
 //--------------------------//
